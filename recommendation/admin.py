@@ -1,32 +1,28 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Movie, QuestionAnswer, Category, User, UserSession, Question, CategoryState, MovieCategoryState, SessionQuestion
+from .models import (
+    Movie,
+    QuestionAnswer,
+    Category,
+    User,
+    UserSession,
+    Question,
+    CategoryState,
+    MovieCategoryState,
+    SessionQuestion,
+    Recommendation,
+)
 
 
-class CategoryStatesAdmin(admin.TabularInline):
-    model = CategoryState
+class CustomModelAdmin(admin.ModelAdmin):
+    " to show all fields in admin panel"
 
-class CategoryAdmin(admin.ModelAdmin):
-    inlines = (CategoryStatesAdmin,)
-
-class QuestionAnswerAdmin(admin.TabularInline):
-    model = QuestionAnswer
-
-class QuestionAdmin(admin.ModelAdmin):
-    inlines = (QuestionAnswerAdmin, )
-
-
-class MovieCategoryStateAdmin(admin.TabularInline):
-    model = MovieCategoryState
-
-class MovieAdmin(admin.ModelAdmin):
-    inlines = (MovieCategoryStateAdmin, )
-    list_display = ('title', 'description', 'image_url')
-
-@admin.register(SessionQuestion)
-class SessionQuestionAdmin(admin.ModelAdmin):
-    pass
+    def __init__(self, model, admin_site):
+        self.list_display = [
+            field.name for field in model._meta.fields if field.name != "id"
+        ]
+        super(CustomModelAdmin, self).__init__(model, admin_site)
 
 
 class ViewOnlyAdmin(admin.ModelAdmin):
@@ -36,20 +32,47 @@ class ViewOnlyAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-@admin.register(CategoryState)
-class CategoryStatesViewOnly(admin.ModelAdmin):
+
+class CategoryStatesAdmin(admin.TabularInline):
+    model = CategoryState
+
+
+@admin.register(Category)
+class CategoryAdmin(CustomModelAdmin):
+    inlines = (CategoryStatesAdmin,)
+
+
+class QuestionAnswerAdmin(admin.TabularInline):
+    model = QuestionAnswer
+
+
+@admin.register(Question)
+class QuestionAdmin(CustomModelAdmin):
+    inlines = (QuestionAnswerAdmin,)
+
+
+class MovieCategoryStateAdmin(admin.StackedInline):
+    model = MovieCategoryState
+
+
+@admin.register(Movie)
+class MovieAdmin(CustomModelAdmin):
+    inlines = (MovieCategoryStateAdmin,)
+
+
+@admin.register(SessionQuestion)
+class SessionQuestionAdmin(CustomModelAdmin):
     pass
 
 
-class UserSessionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'message_id', 'created_at', 'updated_at')
+@admin.register(UserSession)
+class UserSessionAdmin(CustomModelAdmin):
+    list_display = ("user", "message_id", "created_at", "updated_at")
 
+@admin.register(CategoryState)
+class CategoryStateAdmin(CustomModelAdmin):
+    pass
 
-admin.site.register(Movie, MovieAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(User)
-admin.site.register(Question, QuestionAdmin)
-
-# register view only for convenience
-
-admin.site.register(UserSession, UserSessionAdmin)
+@admin.register(User)
+class UserAdmin(CustomModelAdmin):
+    pass
