@@ -1,0 +1,15 @@
+version: '2'
+services:
+  django:
+    image: django-blick-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+
+  telegram_bot:
+    image: django-blick-bot
+    command: bot
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}

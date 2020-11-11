@@ -51,7 +51,7 @@ class QuestionAdmin(CustomModelAdmin):
     inlines = (QuestionAnswerAdmin,)
 
 
-class MovieCategoryStateAdmin(admin.StackedInline):
+class MovieCategoryStateAdmin(admin.TabularInline):
     model = MovieCategoryState
 
 

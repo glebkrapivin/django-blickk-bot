@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
+from typing import List
 
 class Category(models.Model):
     text = models.CharField(max_length=256)
@@ -84,6 +84,11 @@ class SessionQuestion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
 
+    def get_answers(self) -> List[str]:
+        return [q.text for q in self.question.questionanswer_set.all()]
+
+    def get_text(self):
+        return self.question.text
 
 class Movie(models.Model):
     title = models.TextField()
