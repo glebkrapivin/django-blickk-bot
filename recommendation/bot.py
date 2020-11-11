@@ -48,6 +48,9 @@ def edit_message(call: telebot.types.CallbackQuery):
     q = session.step(call.data)
     # TODO: refactor -> models should not be accessed directly from bot
     # move to services
+
+    ## Надо еще чето сделать, если вдруг такое же сообщение прилетает
+    # он типа не меняет его и тогда все крашитс, надо посмотреть, как отлавливать
     if isinstance(q, SessionQuestion):
         text = q.get_text()
         answers = q.get_answers()
