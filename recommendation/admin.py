@@ -69,9 +69,6 @@ class SessionQuestionAdmin(CustomModelAdmin):
 class UserSessionAdmin(CustomModelAdmin):
     list_display = ("user", "message_id", "created_at", "updated_at")
 
-@admin.register(CategoryState)
-class CategoryStateAdmin(CustomModelAdmin):
-    pass
 
 @admin.register(User)
 class UserAdmin(CustomModelAdmin):
