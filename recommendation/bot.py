@@ -1,6 +1,6 @@
 from django_blickk_bot.settings import BOT_TOKEN
 from recommendation.services import UserSessionService, UserService
-from recommendation.models import SessionQuestion, Recommendation
+from recommendation.models import SessionQuestion, Recommendation, Message
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from typing import List
@@ -37,7 +37,6 @@ def edit_message(call: telebot.types.CallbackQuery):
     user = UserService(user_id=user_id)
     message_id = call.message.message_id
     chat_id = call.message.chat.id
-
     if call.data == START_OVER:
         bot.send_message(
             call.message.chat.id,
@@ -46,8 +45,11 @@ def edit_message(call: telebot.types.CallbackQuery):
         )
     session = UserSessionService(message_id=message_id, user=user)
     q = session.step(call.data)
-    # TODO: refactor -> models should not be accessed directly from bot
-    # move to services
+
+    # simple way to log messages, coming from user
+    # change from call.data to raw json coming from api for later analysis
+    msg = Message(session=session, payload=call.data)
+    msg.save()
 
     ## Надо еще чето сделать, если вдруг такое же сообщение прилетает
     # он типа не меняет его и тогда все крашитс, надо посмотреть, как отлавливать

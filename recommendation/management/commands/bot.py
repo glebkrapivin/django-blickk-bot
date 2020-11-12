@@ -11,6 +11,8 @@ class Command(BaseCommand):
         while True:
             try:
                 bot.polling()
+            except KeyboardInterrupt:
+                break
             except Exception as e:
                 logging.exception(e)
                             

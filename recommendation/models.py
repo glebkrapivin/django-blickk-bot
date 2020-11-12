@@ -43,6 +43,7 @@ class QuestionAnswer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
 
+
     def clean(self):
         category = self.question.category
         if category != self.value.category:
@@ -122,3 +123,12 @@ class Recommendation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
+
+
+class Message(models.Model):
+    session = models.ForeignKey(UserSession, on_delete=models.DO_NOTHING)
+    payload = models.TextField()
+    
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+
+

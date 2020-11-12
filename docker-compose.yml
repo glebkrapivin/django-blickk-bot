@@ -2,14 +2,24 @@ version: '2'
 services:
   django:
     image: django-blick-bot
+    command: runserver 0.0.0.0:8000
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8000:8000"
+    volumes:
+    - app-volume:/app
 
   telegram_bot:
     image: django-blick-bot
     command: bot
     environment:
       BOT_TOKEN: ${BOT_TOKEN}
+    volumes:
+    - app-volume:/app
+
+
+volumes:
+  # simple way to share sqlite between containers for debug
+  app-volume:
