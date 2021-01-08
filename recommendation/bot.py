@@ -43,15 +43,15 @@ def edit_message(call: telebot.types.CallbackQuery):
             INTRO_TEXT,
             reply_markup=gen_markup(INTRO_ANSWERS),
         )
-    session = UserSessionService(message_id=message_id, user=user)
-    q = session.step(call.data)
+    session_service = UserSessionService(message_id=message_id, user=user)
+    q = session_service.step(call.data)
 
     # simple way to log messages, coming from user
     # change from call.data to raw json coming from api for later analysis
-    msg = Message(session=session.session, payload=call.data)
+    msg = Message(session=session_service.session, payload=call.data)
     msg.save()
 
-    ## Надо еще чето сделать, если вдруг такое же сообщение прилетает
+    # Надо еще чето сделать, если вдруг такое же сообщение прилетает
     # он типа не меняет его и тогда все крашитс, надо посмотреть, как отлавливать
     if isinstance(q, SessionQuestion):
         text = q.get_text()
@@ -63,9 +63,9 @@ def edit_message(call: telebot.types.CallbackQuery):
             reply_markup=gen_markup(answers),
         )
     else:
-        from random import randint
+        recommendation = session_service.get_recommendation()
         bot.edit_message_text(
-            "Here is recommendation" + str(randint(1, 100)),
+            "Here is recommendation " + recommendation.movie.title,
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             reply_markup=gen_markup(RECOMMENDATION_ANSWERS),
