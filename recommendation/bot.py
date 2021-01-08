@@ -1,4 +1,4 @@
-from django_blickk_bot.settings import BOT_TOKEN
+from settings.config import BOT_TOKEN
 from recommendation.services import UserSessionService, UserService
 from recommendation.models import SessionQuestion, Recommendation, Message
 import telebot
@@ -48,7 +48,7 @@ def edit_message(call: telebot.types.CallbackQuery):
 
     # simple way to log messages, coming from user
     # change from call.data to raw json coming from api for later analysis
-    msg = Message(session=session, payload=call.data)
+    msg = Message(session=session.session, payload=call.data)
     msg.save()
 
     ## Надо еще чето сделать, если вдруг такое же сообщение прилетает
