@@ -1,6 +1,6 @@
 from settings.config import BOT_TOKEN
 from recommendation.services import UserSessionService, UserService
-from recommendation.models import SessionQuestion, Recommendation, Message
+from recommendation.models import SessionQuestion, Message
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from typing import List

@@ -133,7 +133,5 @@ class Recommendation(models.Model):
 class Message(models.Model):
     session = models.ForeignKey(UserSession, on_delete=models.DO_NOTHING)
     payload = models.TextField()
-    
+
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
-
-

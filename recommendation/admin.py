@@ -11,8 +11,7 @@ from .models import (
     CategoryState,
     MovieCategoryState,
     SessionQuestion,
-    Recommendation,
-Message
+    Message
 )
 
 
@@ -69,10 +68,10 @@ class SessionQuestionAdmin(CustomModelAdmin):
 class MessageAdmin(admin.TabularInline):
     model = Message
 
+
 @admin.register(UserSession)
 class UserSessionAdmin(CustomModelAdmin):
     inlines = (MessageAdmin, )
-
 
 
 @admin.register(User)
