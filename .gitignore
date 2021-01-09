@@ -147,3 +147,5 @@ dmypy.json
 
 /settings/env
 /recommendation/migrations/__pycache__/
+
+.DS_Store
