@@ -5,7 +5,7 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from typing import List
 
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
 INTRO_TEXT = "Привет, хотите получить четкую рекомендацию фильмов?"
 INTRO_ANSWERS = ["Начать!"]
@@ -44,7 +44,7 @@ def edit_message(call: telebot.types.CallbackQuery):
             reply_markup=gen_markup(INTRO_ANSWERS),
         )
     session_service = UserSessionService(message_id=message_id, user=user)
-    q = session_service.step(call.data)
+    next_question = session_service.step(call.data)
 
     # simple way to log messages, coming from user
     # change from call.data to raw json coming from api for later analysis
@@ -53,9 +53,9 @@ def edit_message(call: telebot.types.CallbackQuery):
 
     # Надо еще чето сделать, если вдруг такое же сообщение прилетает
     # он типа не меняет его и тогда все крашитс, надо посмотреть, как отлавливать
-    if isinstance(q, SessionQuestion):
-        text = q.get_text()
-        answers = q.get_answers()
+    if isinstance(next_question, SessionQuestion):
+        text = next_question.get_text()
+        answers = next_question.get_answers()
         bot.edit_message_text(
             text,
             chat_id=chat_id,
@@ -63,11 +63,10 @@ def edit_message(call: telebot.types.CallbackQuery):
             reply_markup=gen_markup(answers),
         )
     else:
-        recommendation = session_service.get_recommendation()
-        if not recommendation:
+        if not next_question:
             rec_text = "Sorry, no movies found"
         else:
-            rec_text = f"Here is recommendation {recommendation.movie.title}"
+            rec_text = f"Here is recommendation {next_question.movie.title}"
         bot.edit_message_text(
             rec_text,
             chat_id=call.message.chat.id,

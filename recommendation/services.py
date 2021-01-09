@@ -1,7 +1,5 @@
 # for dumb testing like python recommendations/services.py
 
-import os
-import sys
 import json
 import logging
 import random
@@ -22,12 +20,7 @@ from recommendation.models import (
 
 DEFAULT_COEFF = 0.5
 
-sys.path.append('/Users/gkrapivin/django-blick-bot/django_blickk_bot')
-os.environ["DJANGO_SETTINGS_MODULE"] = "django_blickk_bot.settings"
-
 django.setup()
-######
-
 
 logger = logging.getLogger(__name__)
 
@@ -102,15 +95,15 @@ class UserSessionService:
         mask = [1.0 for _ in self.movies]
         for idx, movie in enumerate(self.movies):
             for property_name, property_dict in self.properties.items():
-                coeff_ = property_dict.get('coeff', DEFAULT_COEFF)
+                coeff = property_dict.get('coeff', DEFAULT_COEFF)
                 matching_properties = MovieCategoryState.objects.filter(
                     movie=movie,
                     state=property_dict.get('value', ''),
                     category=property_name
                 )
                 if not matching_properties:
-                    coeff_ = 1 - coeff_
-                mask[idx] *= coeff_
+                    coeff = 1 - coeff
+                mask[idx] *= coeff
         self.movie_weights = mask
 
     def _set_recommendation_queue(self):
