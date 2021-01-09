@@ -64,8 +64,12 @@ def edit_message(call: telebot.types.CallbackQuery):
         )
     else:
         recommendation = session_service.get_recommendation()
+        if not recommendation:
+            rec_text = "Sorry, no movies found"
+        else:
+            rec_text = f"Here is recommendation {recommendation.movie.title}"
         bot.edit_message_text(
-            "Here is recommendation " + recommendation.movie.title,
+            rec_text,
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             reply_markup=gen_markup(RECOMMENDATION_ANSWERS),

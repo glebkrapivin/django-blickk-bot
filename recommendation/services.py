@@ -5,7 +5,7 @@ import sys
 import json
 import logging
 import random
-from typing import Union
+from typing import Union, Optional
 
 import django
 from django.core.exceptions import ObjectDoesNotExist
@@ -122,12 +122,13 @@ class UserSessionService:
             self.recommendations_queue.append(cur_recommendation)
             movie_weights[cur_choice] = 0
 
-    def get_recommendation(self) -> Recommendation:
+    def get_recommendation(self) -> Optional[Recommendation]:
         if not self.movie_weights:
             self._set_movie_weights()
         if not self.recommendations_queue:
             self._set_recommendation_queue()
-        print(self.recommendations_queue)
+        if not self.recommendations_queue:
+            return None
         recommendation = self.recommendations_queue.pop(0)
         return recommendation
 
