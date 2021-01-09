@@ -1,0 +1,13 @@
+[flake8]
+ignore = D203, B305, A003, DUO103, DUO130
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    env,
+    settings/env,
+    recommendation/migrations
+max-complexity = 10
+max-line-length = 120
+import-order-style = pep8
+format = '%(path)s:%(row)d Column:%(col)d: %(code)s %(text)s'
