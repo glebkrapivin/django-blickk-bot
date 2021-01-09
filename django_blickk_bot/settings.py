@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from settings.config import BASE_DIR, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+from settings.config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 # Quick-start development settings - unsuitable for production
