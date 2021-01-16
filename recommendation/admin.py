@@ -58,6 +58,7 @@ class MovieCategoryStateAdmin(admin.TabularInline):
 @admin.register(Movie)
 class MovieAdmin(CustomModelAdmin):
     inlines = (MovieCategoryStateAdmin,)
+    search_fields = ('title',)
 
 
 @admin.register(SessionQuestion)
