@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from typing import List
 
+
 class Category(models.Model):
     text = models.CharField(max_length=256)
     coef = models.FloatField()
@@ -43,7 +44,6 @@ class QuestionAnswer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
 
-
     def clean(self):
         category = self.question.category
         if category != self.value.category:
@@ -53,6 +53,7 @@ class QuestionAnswer(models.Model):
 
     def __str__(self):
         return self.text
+
 
 class User(models.Model):
     tg_id = models.IntegerField(unique=True)
@@ -64,6 +65,7 @@ class User(models.Model):
     def __str__(self):
         return str(self.tg_id)
 
+
 class UserSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message_id = models.IntegerField(unique=True)
@@ -73,6 +75,7 @@ class UserSession(models.Model):
 
     def __str__(self):
         return f"{self.user.tg_id}-{self.message_id}"
+
 
 class SessionQuestion(models.Model):
     user_session = models.ForeignKey(UserSession, on_delete=models.CASCADE)
@@ -90,6 +93,7 @@ class SessionQuestion(models.Model):
 
     def get_text(self):
         return self.question.text
+
 
 class Movie(models.Model):
     title = models.TextField()
@@ -117,6 +121,7 @@ class MovieCategoryState(models.Model):
                 f"movie has category {self.category}, state {self.state.category}"
             )
 
+
 class Recommendation(models.Model):
     user_session = models.ForeignKey(UserSession, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
@@ -128,7 +133,5 @@ class Recommendation(models.Model):
 class Message(models.Model):
     session = models.ForeignKey(UserSession, on_delete=models.DO_NOTHING)
     payload = models.TextField()
-    
+
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
-
-

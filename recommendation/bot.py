@@ -1,11 +1,11 @@
-from django_blickk_bot.settings import BOT_TOKEN
+from settings.config import BOT_TOKEN
 from recommendation.services import UserSessionService, UserService
-from recommendation.models import SessionQuestion, Recommendation, Message
+from recommendation.models import SessionQuestion, Message
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from typing import List
 
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
 INTRO_TEXT = "Привет, хотите получить четкую рекомендацию фильмов?"
 INTRO_ANSWERS = ["Начать!"]
@@ -43,19 +43,19 @@ def edit_message(call: telebot.types.CallbackQuery):
             INTRO_TEXT,
             reply_markup=gen_markup(INTRO_ANSWERS),
         )
-    session = UserSessionService(message_id=message_id, user=user)
-    q = session.step(call.data)
+    session_service = UserSessionService(message_id=message_id, user=user)
+    next_question = session_service.step(call.data)
 
     # simple way to log messages, coming from user
     # change from call.data to raw json coming from api for later analysis
-    msg = Message(session=session, payload=call.data)
+    msg = Message(session=session_service.session, payload=call.data)
     msg.save()
 
-    ## Надо еще чето сделать, если вдруг такое же сообщение прилетает
+    # Надо еще чето сделать, если вдруг такое же сообщение прилетает
     # он типа не меняет его и тогда все крашитс, надо посмотреть, как отлавливать
-    if isinstance(q, SessionQuestion):
-        text = q.get_text()
-        answers = q.get_answers()
+    if isinstance(next_question, SessionQuestion):
+        text = next_question.get_text()
+        answers = next_question.get_answers()
         bot.edit_message_text(
             text,
             chat_id=chat_id,
@@ -63,9 +63,12 @@ def edit_message(call: telebot.types.CallbackQuery):
             reply_markup=gen_markup(answers),
         )
     else:
-        from random import randint
+        if not next_question:
+            rec_text = "Sorry, no movies found"
+        else:
+            rec_text = f"Here is recommendation {next_question.movie.title}"
         bot.edit_message_text(
-            "Here is recommendation" + str(randint(1, 100)),
+            rec_text,
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             reply_markup=gen_markup(RECOMMENDATION_ANSWERS),

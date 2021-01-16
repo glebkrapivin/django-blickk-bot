@@ -1,19 +1,26 @@
-### for dumb testing like python recommendations/services.py
-import os
-import sys
+# for dumb testing like python recommendations/services.py
 
-sys.path.append('/Users/gkrapivin/django-blick-bot/django_blickk_bot')
-os.environ["DJANGO_SETTINGS_MODULE"] = "django_blickk_bot.settings"
+import json
+import logging
+import random
+from typing import Union, Optional
+
 import django
+from django.core.exceptions import ObjectDoesNotExist
+
+from recommendation.models import (
+    UserSession,
+    User,
+    SessionQuestion,
+    Category, Question,
+    Recommendation,
+    MovieCategoryState,
+    Movie
+)
+
+DEFAULT_COEFF = 0.5
 
 django.setup()
-######
-
-from recommendation.models import UserSession, User, SessionQuestion, Category, Question, Recommendation
-from typing import Union
-import json
-from django.core.exceptions import ObjectDoesNotExist
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +43,18 @@ class UserSessionService:
         self.questions = self.session.sessionquestion_set
         if not self.questions.count():
             self.add_session_questions()
+        self.movies = Movie.objects.all()
+        self.movie_recommendations = [
+            Recommendation(user_session=self.session, movie=movie)
+            for movie in self.movies
+        ]
+        print(self.session.user.properties)
+        if self.session.user.properties:
+            self.properties = json.loads(self.session.user.properties)
+        else:
+            self.properties = {}
+        self.recommendations_queue = []
+        self.movie_weights = []
 
     def add_session_questions(self) -> None:
         for category in self.categories:
@@ -72,8 +91,39 @@ class UserSessionService:
         session_question.is_current = False
         session_question.save()
 
-    def get_recommendation(self) -> Recommendation:
-        return 'NOT IMPL'
+    def _set_movie_weights(self):
+        mask = [1.0 for _ in self.movies]
+        for idx, movie in enumerate(self.movies):
+            for property_name, property_dict in self.properties.items():
+                coeff = property_dict.get('coeff', DEFAULT_COEFF)
+                matching_properties = MovieCategoryState.objects.filter(
+                    movie=movie,
+                    state=property_dict.get('value', ''),
+                    category=property_name
+                )
+                if not matching_properties:
+                    coeff = 1 - coeff
+                mask[idx] *= coeff
+        self.movie_weights = mask
+
+    def _set_recommendation_queue(self):
+        movie_weights = self.movie_weights.copy()
+        movies_idx = list(range(len(self.movies)))
+        for _ in movies_idx:
+            cur_choice = random.choices(movies_idx, weights=movie_weights, k=1)[0]
+            cur_recommendation = self.movie_recommendations[cur_choice]
+            self.recommendations_queue.append(cur_recommendation)
+            movie_weights[cur_choice] = 0
+
+    def get_recommendation(self) -> Optional[Recommendation]:
+        if not self.movie_weights:
+            self._set_movie_weights()
+        if not self.recommendations_queue:
+            self._set_recommendation_queue()
+        if not self.recommendations_queue:
+            return None
+        recommendation = self.recommendations_queue.pop(0)
+        return recommendation
 
     def step(self, user_input: str = None) -> Union[SessionQuestion, Recommendation]:
         if not user_input:
